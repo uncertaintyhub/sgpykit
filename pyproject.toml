@@ -45,7 +45,7 @@ doc = [
 ]
 [project.urls]
 Homepage = "https://github.com/uncertaintyhub/sgpykit"
-Documentation = "https://github.com/uncertaintyhub/sgpykit"
+Documentation = "https://uncertaintyhub.github.io/sgpykit-doc/"
 Repository = "https://github.com/uncertaintyhub/sgpykit"
 Issues = "https://github.com/uncertaintyhub/sgpykit/issues"
 
