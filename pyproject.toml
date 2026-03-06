@@ -1,0 +1,59 @@
+[project]
+name = "sgpykit"
+version = "0.1.0"
+description = "The Sparse Grids Python Kit provides a Python implementation of sparse grids, and can be used for approximating high-dimensional functions and, in particular, for surrogate-model-based uncertainty quantification."
+authors = [
+    {name = "Lorenzo Tamellini et al."}
+]
+maintainers = [
+  {name = "Matthias Werner"}
+]
+readme = "README.md"
+license = "BSD-3-Clause"
+requires-python = "<4.0,>=3.11"
+dependencies = [
+    "numpy (>=1.26.0,<3.0.0)",
+    "matplotlib (>=3.0.0,<4.0.0)",
+    "scipy (>=1.16.0)",
+]
+keywords = ["sparse-grid","interpolation","quadrature","polynomials","adaptive-grids","numerical-integration"]
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3 :: Only',
+    'Topic :: Software Development',
+    'Topic :: Scientific/Engineering',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-benchmark (>=5.0.0)"
+]
+doc = [
+    "sphinx>=5.0.0,<8.2.0",
+    "notebook>=7.0.0"
+]
+[project.urls]
+Homepage = "https://github.com/uncertaintyhub/sgpykit"
+Documentation = "https://github.com/uncertaintyhub/sgpykit"
+Repository = "https://github.com/uncertaintyhub/sgpykit"
+Issues = "https://github.com/uncertaintyhub/sgpykit/issues"
+
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]  # Look for packages in the current directory
+include = ["sgpykit*"]  # Include the sgpykit package
