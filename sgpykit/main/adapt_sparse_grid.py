@@ -74,7 +74,7 @@ def adapt_sparse_grid(f, N_full, knots, lev2knots, prev_adapt, controls):
     prev_adapt : types.SimpleNamespace or None
         By setting PREV_ADAPT as the output ADAPTED of a previous computation, the new computation
         will resume from where the previous one left. Set PREV_ADAPT = None for a fresh start
-    controls : types.SimpleNamespace
+    controls : dict or types.SimpleNamespace
         A struct defining several parameters that control the algorithm flow. It is possible to
         define only some (or none) of these parameters, the others will be set to default value. Only
         the parameter 'nested' is mandatory. The parameter 'pdf' is mandatory only if controls.prof is
@@ -657,9 +657,9 @@ def start_adapt(f, N, knots, lev2knots, prev_adapt, controls):
         Knot generation functions.
     lev2knots : callable
         Level-to-knots mapping function.
-    prev_adapt : dict or None
+    prev_adapt : types.SimpleNamespace or None
         Previous adaptation state (None for fresh start).
-    controls : dict
+    controls : types.SimpleNamespace
         Control parameters.
 
     Returns
@@ -807,7 +807,7 @@ def compute_profit_idx(ng_idx, f, S, T, Tr, Sr, Hr, f_on_Sr, f_on_Hr, intf, nb_p
         Knot generation functions.
     lev2knots : callable
         Level-to-knots mapping function.
-    controls : dict
+    controls : types.SimpleNamespace
         Control parameters.
 
     Returns

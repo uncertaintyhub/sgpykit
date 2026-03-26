@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from scipy.stats import norm
+from types import SimpleNamespace
 
 import sgpykit as sg
 from sgpykit.util.checks import is_list_math_equal
@@ -39,13 +40,13 @@ def test_adapt_sparse_grid_examples(f, knots_f, exp_bufint, exp_nobufint, exp_on
     N = 3
     lev2knots = sg.lev2knots_doubling
 
-    controls = {
-        "max_pts": 200,
-        "prof_tol": 1e-10,
-        "plot": False,
-        "var_buffer_size": 2,  # buffer version
-        "nested": True
-    }
+    controls = SimpleNamespace(
+        max_pts=200,
+        prof_tol=1e-10,
+        plot=False,
+        var_buffer_size=2,  # buffer version
+        nested=True
+    )
     prev_adapt = None
 
     # ---- with buffer ------------------------------------------------
@@ -53,7 +54,7 @@ def test_adapt_sparse_grid_examples(f, knots_f, exp_bufint, exp_nobufint, exp_on
                                       prev_adapt, controls)
 
     # ---- without buffer (var_buffer_size = N) -----------------------
-    controls["var_buffer_size"] = N
+    controls.var_buffer_size = N
     adapt_no_buff = sg.adapt_sparse_grid(f, N, knots_f, lev2knots,
                                          prev_adapt, controls)
 
@@ -81,12 +82,12 @@ def test_adapt_sparse_grid():
     # level‑to‑knots mapping (doubling rule)
     lev2knots = sg.lev2knots_doubling
 
-    controls = {
-        "max_pts": 20,
-        "prof_tol": 1e-10,
-        "nested": True,
-        "plot": False
-    }
+    controls = SimpleNamespace(
+        max_pts=20,
+        prof_tol=1e-10,
+        nested=True,
+        plot=False
+    )
     prev_adapt = None
 
     adapt1 = sg.adapt_sparse_grid(f, N, knots, lev2knots, prev_adapt, controls)
@@ -181,57 +182,57 @@ def test_adapt_sparse_grid_pdf():
 
     knots = lambda n: sg.knots_GK(n, 0, 1)          # Gauss‑Kronrod on [0,1]
     lev2knots = sg.lev2knots_GK
-    controls = {
-        "max_pts": 150,
-        "prof_tol": 1e-10,
-        "prof": "weighted Linf/new_points",
-        "nested": True,
-        "plot": False,
+    controls = SimpleNamespace(
+        max_pts=150,
+        prof_tol=1e-10,
+        prof="weighted Linf/new_points",
+        nested=True,
+        plot=False,
         # Gaussian pdf (product of 1‑D normals)
-        "pdf": lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
-    }
+        pdf=lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
+    )
     prev_adapt = None
     adapt1 = sg.adapt_sparse_grid(f, N, knots, lev2knots, prev_adapt, controls)
-    pass # TODO
+    pytest.skip("TODO: implement test assertions")
 
 
 def test_adapt_sparse_grid_lin_prior_eval():
     f = lambda x: 1.0/(2 + np.exp(x[0]) + np.exp(x[1]))
     N = 2
-    controls = {
-        "max_pts": 150,
-        "prof_tol": 1e-10,
-        "prof": "weighted Linf/new_points",
-        "nested": False,
-        "plot": False,
+    controls = SimpleNamespace(
+        max_pts=150,
+        prof_tol=1e-10,
+        prof="weighted Linf/new_points",
+        nested=False,
+        plot=False,
         # Gaussian pdf (product of 1‑D normals)
-        "pdf": lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
-    }
+        pdf=lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
+    )
     knots = lambda n: sg.knots_normal(n, 0, 1)  # Gauss‑Hermite (non‑nested)
     lev2knots = sg.lev2knots_lin
     prev_adapt = None
     adapt2 = sg.adapt_sparse_grid(f, N, knots, lev2knots, prev_adapt, controls)
-    pass # TODO
+    pytest.skip("TODO: implement test assertions")
 
 
 def test_adapt_sparse_grid_lin_prior_recycling():
     f = lambda x: 1.0 / (2 + np.exp(x[0]) + np.exp(x[1]))
     N = 2
-    controls = {
-        "max_pts": 150,
-        "prof_tol": 1e-10,
-        "prof": "weighted Linf/new_points",
-        "nested": False,
-        "plot": False,
-        "recycling": "priority_to_recycling",
+    controls = SimpleNamespace(
+        max_pts=150,
+        prof_tol=1e-10,
+        prof="weighted Linf/new_points",
+        nested=False,
+        plot=False,
+        recycling="priority_to_recycling",
         # Gaussian pdf (product of 1‑D normals)
-        "pdf": lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
-    }
+        pdf=lambda Y: np.prod(norm.pdf(Y, 0, 1), axis=0)
+    )
     knots = lambda n: sg.knots_normal(n, 0, 1)  # Gauss‑Hermite (non‑nested)
     lev2knots = sg.lev2knots_lin
     prev_adapt = None
     adapt3 = sg.adapt_sparse_grid(f, N, knots, lev2knots, prev_adapt, controls)
-    pass # TODO
+    pytest.skip("TODO: implement test assertions")
 
 
 def test_adapt_sparse_grid_4d():
@@ -241,12 +242,12 @@ def test_adapt_sparse_grid_4d():
     knots = lambda n: sg.knots_CC(n, a, b)
     lev2knots = sg.lev2knots_doubling
 
-    controls = {
-        "max_pts": 400,
-        "prof_tol": 1e-10,
-        "nested": True
-    }
+    controls = SimpleNamespace(
+        max_pts=400,
+        prof_tol=1e-10,
+        nested=True
+    )
     prev_adapt = None
     adapt1 = sg.adapt_sparse_grid(f, N, knots, lev2knots, prev_adapt, controls)
-    pass # TODO
+    pytest.skip("TODO: implement test assertions")
 
