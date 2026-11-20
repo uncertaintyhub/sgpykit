@@ -155,10 +155,13 @@ def convert_to_modal(S, Sr, nodal_values, domain, flags):
     # I preallocate them to speed up code
 
     tot_midx = sum(U[g]['size'] for g in range(nb_tensor_grids))
+    # take the dtype from the first non-empty grid's coefficients so complex values are supported
+    coeffs_dtype = next(U[g]['modal_coeffs'].dtype for g in range(nb_tensor_grids)
+                        if S[g].knots is not None and len(S[g].knots) != 0)
     # this is the container of multi_indices
     All = np.zeros((tot_midx, N))
     # this is the container of coefficients
-    all_coeffs = np.zeros((tot_midx, V))
+    all_coeffs = np.zeros((tot_midx, V), dtype=coeffs_dtype)
     # this is the index that scrolls them
     l = 0
     # fill All and all_coeffs
@@ -194,7 +197,7 @@ def convert_to_modal(S, Sr, nodal_values, domain, flags):
     all_coeffs_sorted = all_coeffs[sorter]
     # initialize modal_coeffs, that is the final output
     nb_modal_coeffs = K.shape[0]
-    modal_coeffs = np.zeros((nb_modal_coeffs, V))
+    modal_coeffs = np.zeros((nb_modal_coeffs, V), dtype=all_coeffs.dtype)
     # compute them one at a time
 
     l = 0  # scrolls all_coeffs_sorted

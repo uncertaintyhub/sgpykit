@@ -154,6 +154,11 @@ def adapt_sparse_grid(f, N_full, knots, lev2knots, prev_adapt, controls):
             lambda A, B: some_function_of_(A, B)
             where A B are two matrices with V rows, containing the evaluation of the two operators S T discussed above
             as columns, e.g. A=[S(y1) S(y2) S(y3) ...], B=[T(y1) T(y2) T(y3) ...]
+            Note: the profit indicator is only used for ranking, hence it is computed on the
+            real part of the result of op_vect. With complex-valued f and the default op_vect,
+            the ranking is therefore based on the real part of the function values; supply a
+            custom op_vect based on np.abs (e.g. lambda A, B: np.sqrt(np.sum(np.abs(A - B)**2, axis=0)))
+            for modulus-based ranking of complex errors.
         controls.pts_tol : float
             is the tolerance used by evaluate_on_sparse_grid to check for equal points (default 1e-14)
         controls.pdf : callable
@@ -901,7 +906,13 @@ def compute_profit_idx(ng_idx, f, S, T, Tr, Sr, Hr, f_on_Sr, f_on_Hr, intf, nb_p
             raise ValueError('do we need new points in this case? fix code here')
 
     prof_type = controls.prof
-    op_vect = controls.op_vect
+    # the profit indicator is only used for ranking, hence it is computed on
+    # the real part: this also supports complex-valued f without changing the
+    # (real) buffer Prof_temp
+    op_vect = lambda A, B: np.real(controls.op_vect(A, B))
+    # knots are real even when f is complex-valued: evaluate the pdf on the
+    # real part so that the (real) weights stay real
+    pdf = lambda Y: controls.pdf(np.real(Y))
 
     if prof_type == "Linf/new_points":
         Sr_on_new_pts = interpolate_on_sparse_grid(S, Sr, f_on_Sr, new_points)
@@ -931,7 +942,7 @@ def compute_profit_idx(ng_idx, f, S, T, Tr, Sr, Hr, f_on_Sr, f_on_Hr, intf, nb_p
             Prof_temp = (
                 np.max(
                     op_vect(f_on_Tr[:, idx_newp], Sr_on_new_pts)
-                    * controls.pdf(new_points)
+                    * pdf(new_points)
                 )
                 / newp
             )
@@ -939,7 +950,7 @@ def compute_profit_idx(ng_idx, f, S, T, Tr, Sr, Hr, f_on_Sr, f_on_Hr, intf, nb_p
             Prof_temp = (
                 np.max(
                     op_vect(Tr_on_new_pts, Sr_on_new_pts)
-                    * controls.pdf(new_points)
+                    * pdf(new_points)
                 )
                 / newp
             )
@@ -949,12 +960,12 @@ def compute_profit_idx(ng_idx, f, S, T, Tr, Sr, Hr, f_on_Sr, f_on_Hr, intf, nb_p
         if controls.nested:
             Prof_temp = np.max(
                 op_vect(f_on_Tr[:, idx_newp], Sr_on_new_pts)
-                * controls.pdf(new_points)
+                * pdf(new_points)
             )
         else:
             Prof_temp = np.max(
                 op_vect(Tr_on_new_pts, Sr_on_new_pts)
-                * controls.pdf(new_points)
+                * pdf(new_points)
             )
     else:
         raise ValueError("unknown profit indicator. Check spelling")

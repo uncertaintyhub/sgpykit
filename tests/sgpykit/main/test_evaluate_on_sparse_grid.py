@@ -50,6 +50,25 @@ def test_evaluate_on_sparse_grid_from_vector(N, w1, w2):
     np.testing.assert_allclose(evals_non_rec, evals_rec, atol=1e-15)
 
 
+def test_evaluate_on_sparse_grid_complex():
+    # complex-valued f must be preserved through evaluation and recycling
+    f = lambda x: (1 + 2j) * sum(x)
+    N, w1, w2 = 2, 3, 4
+    S, _ = create_sparse_grid(N, w1, lambda n: knots_uniform(n, -1, 1), lev2knots_lin)
+    Sr = reduce_sparse_grid(S)
+    T, _ = create_sparse_grid(N, w2, lambda n: knots_uniform(n, -1, 1), lev2knots_lin)
+    Tr = reduce_sparse_grid(T)
+    evals_non_rec, *_ = evaluate_on_sparse_grid(f, S=None, Sr=Tr)
+    evals_old, *_ = evaluate_on_sparse_grid(f, S=None, Sr=Sr)
+    evals_rec, *_ = evaluate_on_sparse_grid(f, T,
+                                            Sr=Tr,
+                                            evals_old=evals_old,
+                                            S_old=S,
+                                            Sr_old=Sr)
+    assert np.iscomplexobj(evals_rec)
+    np.testing.assert_allclose(evals_non_rec, evals_rec, atol=1e-15)
+
+
 def test_evaluate_on_sparse_grid_benchmark(benchmark):
     f = lambda x: sum(x)
     N = 8

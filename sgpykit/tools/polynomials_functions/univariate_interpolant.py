@@ -48,7 +48,8 @@ def univariate_interpolant(grid_points, function_on_grid, non_grid_points):
     V, nb_grid_points = function_on_grid.shape
     nb_pts = non_grid_points.size
 
-    f_values = np.zeros((V, nb_pts), dtype=float)
+    # infer dtype from the function values so complex-valued quantities are supported
+    f_values = np.zeros((V, nb_pts), dtype=function_on_grid.dtype)
 
     for k, xk in enumerate(grid_points):
         # Build all basis values efficiently

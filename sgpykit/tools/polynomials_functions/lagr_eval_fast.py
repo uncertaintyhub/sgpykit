@@ -50,13 +50,15 @@ def lagr_eval_fast(current_knot, other_knots, ok_len, non_grid_points, ng_size):
     # L is the result. It is a column vector, same size as non_grid_points. It is initialized to 1, and then iteratively multiplied by
     # each factor
     # L=ones(size(non_grid_points));
+    # infer dtype from the points and knots so complex-valued quantities are supported
+    dtype = np.result_type(non_grid_points, current_knot, other_knots)
     if is_numeric_scalar(ng_size):
-        L = np.ones((ng_size, ng_size))
+        L = np.ones((ng_size, ng_size), dtype=dtype)
     else:
         # make a simple vector (n,) instead of a column vector (n,1)
         if len(ng_size) == 2 and ng_size[1] == 1:
             ng_size = ng_size[0]
-        L = np.ones(ng_size)
+        L = np.ones(ng_size, dtype=dtype)
 
     for k in range(ok_len):
         # these are the non current-knot, one at a time

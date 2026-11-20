@@ -516,6 +516,13 @@ def eig(var):
     # X are eigenvalues (already a vector of the diagonals)
     # matlab would return X as matrix
     x, W = np.linalg.eig(var)
+    # NOTE: np.linalg.eig returns complex even for real symmetric matrices
+    # with exactly-zero imaginary parts. For real input matrices we cast the
+    # result back to real when the imaginary parts are negligible, to avoid
+    # spurious complex dtypes propagating downstream (e.g. into the knots).
+    if not np.iscomplexobj(var) and np.max(np.abs(x.imag)) < 1e-12 * max(1.0, np.max(np.abs(x.real))):
+        x = x.real
+        W = W.real
     return W, x  # swap to get matlab behavior
 
 

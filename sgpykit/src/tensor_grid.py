@@ -47,15 +47,6 @@ def tensor_grid(N, m, knots):
 
     sz = np.max((1, np.prod(m, dtype=np.int64)))
 
-    # create a "scalar" StructArray
-    S = matlab.struct(
-        knots=np.zeros((N, sz)),
-        weights=np.ones((1, sz)),
-        size=sz,
-        # NOTE: do not use cell here (otherwise it becomes a non-scalar StructArray)
-        knots_per_dim=np.empty(N, dtype=object),
-        m=m)
-
     # generate the pattern that will be used for knots and weights matrices, e.g.
 
     # pattern = [1 1 1 1 2 2 2 2;
@@ -66,10 +57,32 @@ def tensor_grid(N, m, knots):
     # direction 1 and 2 and node 2 in direction 3 ...
 
     pattern = generate_pattern(m)
+
+    # evaluate the knots first, so the knots dtype (e.g. complex) is known
+    # before allocating the buffer (avoids silently casting complex knots to real)
+    knots_per_dim = []
+    weights_per_dim = []
+    knots_dtype = float
     for n in range(N):
         xx, ww = knots[n](m[n])
-        S.knots_per_dim[n] = np.atleast_1d(xx).tolist()
-        S.knots[n] = np.atleast_1d(xx)[pattern[n,:]]
-        S.weights = S.weights * np.atleast_1d(ww)[pattern[n,:]]
+        xx = np.atleast_1d(xx)
+        knots_per_dim.append(xx)
+        weights_per_dim.append(np.atleast_1d(ww))
+        knots_dtype = np.result_type(knots_dtype, xx.dtype)
+
+    # create a "scalar" StructArray
+    S = matlab.struct(
+        knots=np.zeros((N, sz), dtype=knots_dtype),
+        weights=np.ones((1, sz)),
+        size=sz,
+        # NOTE: do not use cell here (otherwise it becomes a non-scalar StructArray)
+        knots_per_dim=np.empty(N, dtype=object),
+        m=m)
+
+    for n in range(N):
+        xx = knots_per_dim[n]
+        S.knots_per_dim[n] = xx.tolist()
+        S.knots[n] = xx[pattern[n,:]]
+        S.weights = S.weights * weights_per_dim[n][pattern[n,:]]
 
     return S
