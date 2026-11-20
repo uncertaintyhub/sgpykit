@@ -386,8 +386,8 @@ def test_multi_dim_points():
     
     result = ctx.execute(sum_squares, points)
     expected = sum_squares(points)
-    np.testing.assert_allclose(result, np.atleast_2d(expected))
-    assert result.shape == (1, points.shape[1])
+    np.testing.assert_allclose(result, expected)
+    assert result.shape == (points.shape[1],)
 
 
 def multi_output_func(x):
@@ -412,28 +412,30 @@ def func_returning_1d(x):
     return np.sum(x**2, axis=0)
 
 
-def test_atleast_2d_normalization_process():
-    """1-D chunk results are normalized to (1, n_points) in the process backend."""
+def test_1d_squeeze_process():
+    """1-D chunk results are squeezed to (n_points,) in the process backend,
+    matching the output shape of the serial path."""
     ctx = ParallelContext(min_workload_size=10, max_workers=2, backend='process')
     points = np.random.rand(2, 50)
 
     result = ctx.execute(func_returning_1d, points)
 
-    expected = np.atleast_2d(func_returning_1d(points))
+    expected = func_returning_1d(points)
     np.testing.assert_allclose(result, expected)
-    assert result.shape == (1, 50)
+    assert result.shape == (50,)
 
 
-def test_atleast_2d_normalization_thread():
-    """1-D chunk results are normalized to (1, n_points) in the thread backend."""
+def test_1d_squeeze_thread():
+    """1-D chunk results are squeezed to (n_points,) in the thread backend,
+    matching the output shape of the serial path."""
     ctx = ParallelContext(min_workload_size=10, max_workers=2, backend='thread')
     points = np.random.rand(2, 50)
 
     result = ctx.execute(func_returning_1d, points)
 
-    expected = np.atleast_2d(func_returning_1d(points))
+    expected = func_returning_1d(points)
     np.testing.assert_allclose(result, expected)
-    assert result.shape == (1, 50)
+    assert result.shape == (50,)
 
 
 def test_chunk_exception_propagates_thread():
