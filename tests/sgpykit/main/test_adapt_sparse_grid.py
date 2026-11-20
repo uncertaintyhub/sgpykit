@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 import numpy as np
 from scipy.stats import norm
@@ -67,6 +69,31 @@ def test_adapt_sparse_grid_examples(f, knots_f, exp_bufint, exp_nobufint, exp_on
     assert np.isclose(adapt_buff.intf[0], exp_bufint)
     assert np.isclose(adapt_no_buff.intf[0], exp_nobufint)
     assert np.isclose(Q[0], exp_oneint)
+
+
+def test_adapt_sparse_grid_complex():
+    # complex-valued f through the full adaptive loop: reproduces the
+    # ComplexWarning / UFuncTypeError reported in tutorial/05-adaptive.ipynb
+    f = lambda x: (1 + 2j) * (1 + np.exp(np.sum(x, axis=0)))
+    N = 3
+    lev2knots = sg.lev2knots_doubling
+    knots_f = [lambda n: sg.knots_CC(n, -0.5, 0.5)] * N
+
+    controls = SimpleNamespace(
+        max_pts=200,
+        prof_tol=1e-10,
+        plot=False,
+        var_buffer_size=2,
+        nested=True
+    )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', category=Warning)
+        adapt = sg.adapt_sparse_grid(f, N, knots_f, lev2knots, None, controls)
+
+    assert np.iscomplexobj(adapt.intf)
+    # the imaginary part must equal 2 times the real part (f = (1+2j) * real(f))
+    np.testing.assert_allclose(np.imag(adapt.intf), 2 * np.real(adapt.intf), rtol=1e-10)
 
 
 def test_adapt_sparse_grid():

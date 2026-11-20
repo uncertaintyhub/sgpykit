@@ -17,6 +17,21 @@ def test_quadrature_on_sparse_grid():
     assert np.isclose(result, 1.883984044753591)
 
 
+def test_quadrature_on_sparse_grid_complex():
+    # complex integrand: weights are real, so the integral is complex and
+    # equals (1+2j) times the integral of the real part
+    N, w = 2, 4
+    knots = lambda n: knots_CC(n, -1, 1, 'nonprob')
+    S, _ = create_sparse_grid(N, w, knots, lev2knots_doubling)
+    Sr = reduce_sparse_grid(S)
+    f_real = lambda x: np.sum(x**2, axis=0, keepdims=True)
+    result_real, _ = quadrature_on_sparse_grid(f_real, S=None, Sr=Sr)
+    f = lambda x: (1 + 2j) * f_real(x)
+    result, evals = quadrature_on_sparse_grid(f, S=None, Sr=Sr)
+    assert np.iscomplexobj(result)
+    np.testing.assert_allclose(result, (1 + 2j) * result_real, atol=1e-13)
+
+
 def test_quadrature_on_sparse_grid_recycle():
     f = lambda x, b: np.prod((x + b) ** -0.5, axis=0)
     b = 5

@@ -47,7 +47,8 @@ def interpolate_on_sparse_grid(S, Sr, function_on_grid, non_grid_points):
     # the other sizes.
     V = function_on_grid.shape[0]
     nb_pts = non_grid_points.shape[1]
-    f_values = np.zeros((nb_pts, V))
+    # infer dtype from the function values so complex-valued quantities are supported
+    f_values = np.zeros((nb_pts, V), dtype=function_on_grid.dtype)
     function_on_grid = np.transpose(function_on_grid)
     if isinstance(S, Struct):
         S = [S]
@@ -100,7 +101,8 @@ def interpolate_on_sparse_grid(S, Sr, function_on_grid, non_grid_points):
             # i.e. one knot at a time, it's better to have all information for the same lagrange polynomial
             # on the same column, for speed purposes. Moreover, note that whenever K=1 (one point only in a direction)
             # then the lagrange polynomial is identically one
-            mono_lagr_eval.append( np.ones((nb_pts, K)) )
+            # dtype accommodates complex function values passed via non_grid_points
+            mono_lagr_eval.append( np.ones((nb_pts, K), dtype=f_values.dtype) )
             if K > 1:
                 # loop on each node of the current dimension and evaluate the corresponding monodim lagr polynomial.
                 # We will need an auxiliary vector to pick up the current knot (where the lagr pol is centered) and

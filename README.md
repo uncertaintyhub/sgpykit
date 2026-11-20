@@ -22,6 +22,16 @@ It implements a Python version of [Sparse Grids Matlab Kit](https://sites.google
 - It is mainly used to approximate multivariate functions, but it does **not** solve equations such as PDEs.
 - sgpykit uses **Lagrange** polynomials. More general polynomial forms are possible, but their implementation is not a high priority right now.
 
+**Complex-valued functions:**
+
+sgpykit supports complex-valued target functions `f` directly, e.g. `f = lambda x: (1 + 2j) / (1 + np.sum(x, axis=0))` can be
+passed straight to `sg.adapt_sparse_grid`, `sg.evaluate_on_sparse_grid`, `sg.interpolate_on_sparse_grid` and
+`sg.quadrature_on_sparse_grid` without splitting real and imaginary parts. Notes:
+
+- The Lagrange interpolation acts linearly on the real and imaginary parts, so complex function values are interpolated exactly.
+- The adaptive refinement profit indicators are computed with the user-supplied `controls.op_vect`; with the default `op_vect` and complex-valued `f`, the ranking is based on the **real part** of the function values (the indicator is only used for ranking, so this does not affect correctness). For modulus-based ranking of complex errors, supply a custom `op_vect`, e.g. `lambda A, B: np.sqrt(np.sum(np.abs(A - B)**2, axis=0))`.
+- Knots and quadrature weights are always real; complex *knots* are not supported.
+
 ## sgpykit Qickstart
 
 Import sgpykit (install via github: `pip install git+https://github.com/uncertaintyhub/sgpykit` or see below):

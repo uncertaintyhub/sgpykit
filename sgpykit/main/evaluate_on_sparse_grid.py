@@ -109,7 +109,8 @@ def evaluate_on_sparse_grid(f, S, Sr, evals_old=None, S_old=None, Sr_old=None, t
     N = pts_list.shape[1]
     s = evals_old.shape[0]
 
-    f_eval = np.zeros((s, N))
+    # infer dtype from previous evaluations so complex-valued quantities are supported
+    f_eval = np.zeros((s, N), dtype=evals_old.dtype)
 
     # parallel_ctx.execute() falls back to serial when conditions are not met
     # or no context is given, so a single call suffices here

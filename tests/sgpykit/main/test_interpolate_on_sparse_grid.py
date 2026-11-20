@@ -38,6 +38,27 @@ def test_interpolate_on_sparse_grid():
     assert np.isclose(interpolation_error, 7.0684e-06)
 
 
+def test_interpolate_on_sparse_grid_complex():
+    # complex-valued function: real and imaginary parts are interpolated separately
+    # by the Lagrange interpolation, hence the result must be exact for linear f
+    f = lambda x, b: (1 + 2j) / (1 + 0.5 / N * np.sum(x, axis=0) + b)
+    b = 1
+    N = 3
+    w = 4
+
+    knots = lambda n: sg.knots_uniform(n, -1, 1, 'nonprob')
+    S, _ = sg.create_sparse_grid(N, w, knots, sg.lev2knots_lin)
+    Sr = sg.reduce_sparse_grid(S)
+
+    non_grid_points = np.hstack((0.5 * np.ones((N, 1)), np.zeros((N, 1))))
+    function_on_grid = f(Sr.knots, b)
+
+    f_values = sg.interpolate_on_sparse_grid(S, Sr, function_on_grid, non_grid_points)
+
+    assert np.iscomplexobj(f_values)
+    assert np.allclose(f_values, f(non_grid_points, b))
+
+
 def test_interpolate_on_sparse_grid_random():
     assert True
     N = 3
