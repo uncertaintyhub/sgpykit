@@ -10,8 +10,16 @@ from sgpykit.src import *
 
 from sgpykit.util import misc
 from sgpykit.util import matlab
-from .util.log import logger
+from sgpykit.util.parallel import ParallelContext
+from .util.log import (
+    logger,
+    set_logger_basic_format,
+    set_logger_custom_format,
+    set_logger_info_level,
+    set_logger_debug_level,
+    set_logger_custom_level,
+)
 
 from sgpykit.util.plot import figure_create, clear, plot
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
